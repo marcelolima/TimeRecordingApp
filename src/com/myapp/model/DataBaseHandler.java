@@ -1,9 +1,14 @@
 package com.myapp.model;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.myapp.util.Task;
 
 public class DataBaseHandler extends SQLiteOpenHelper {
 	private static DataBaseHandler instance = null;
@@ -73,5 +78,27 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORD);
 
 		this.onCreate(db);
+	}
+
+	public long addTask(Task task) throws SQLException {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		Cursor c = db.rawQuery("SELECT * FROM " + TABLE_TASK + " WHERE name = \"" +
+				task.getName() + "\"", null);
+
+		if (c.getCount() > 0)
+			return -1;
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_NAME, task.getName());
+		values.put(KEY_DESC, task.getDescription());
+		values.put(KEY_SSID, task.getSsid());
+		values.put(KEY_BSSID, task.getBssid());
+
+		long id = db.insert(TABLE_TASK, null, values);
+		db.close();
+
+		Log.d(TAG, "Inserted: " + task.toString());
+		return id;
 	}
 }
