@@ -1,5 +1,7 @@
 package com.myapp.model;
 
+import java.util.ArrayList;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -100,5 +102,25 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
 		Log.d(TAG, "Inserted: " + task.toString());
 		return id;
+	}
+
+	public ArrayList<Task> getAllTasks() {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		Cursor c = db.rawQuery("SELECT " + KEY_ID + ", " + KEY_NAME +
+				" FROM " + TABLE_TASK + ";" , null);
+
+		if (c.getCount() == 0)
+			return null;
+
+		int columnId = c.getColumnIndex(KEY_ID);
+		int columnName = c.getColumnIndex(KEY_NAME);
+
+		ArrayList<Task> tasksList = new ArrayList<Task>();
+		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext())
+			tasksList.add(new Task(c.getInt(columnId), c.getString(columnName)));
+
+		db.close();
+		return tasksList;
 	}
 }
