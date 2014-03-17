@@ -15,6 +15,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		Button buttonNewTask = (Button) findViewById(R.id.button_new_task);
+		Button buttonYourTasks = (Button) findViewById(R.id.button_show_tasks);
 
 		buttonNewTask.setOnClickListener(new View.OnClickListener() {
 
@@ -25,6 +26,15 @@ public class MainActivity extends Activity {
 			}
 		});
 
+		buttonYourTasks.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent("com.myapp.timerecordingapp.SHOWTASKS");
+				startActivity(intent);
+			}
+		});
 	}
 
 	@Override
