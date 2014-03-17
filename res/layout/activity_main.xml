@@ -14,4 +14,12 @@
         android:layout_height="wrap_content"
         android:text="New Task"
         />
+
+	<Button
+        android:id="@+id/button_show_tasks"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/button_new_task"
+        android:text="Your Tasks"
+        />
 </RelativeLayout>
