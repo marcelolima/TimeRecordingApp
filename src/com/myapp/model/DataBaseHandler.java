@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.myapp.util.Record;
 import com.myapp.util.Task;
 import com.myapp.util.Wifi;
 
@@ -220,6 +221,27 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 			Log.d(TAG, "UPDATED " + Integer.toString(taskId) + " with checkout " + checkOut, null);
 		}
 		db.close();
+	}
+
+	public ArrayList<Record> getRecords(int taskId) throws SQLException {
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery("SELECT " + KEY_CHECKIN + ", " + KEY_CHECKOUT +
+				" FROM " + TABLE_RECORD +
+				" WHERE " + KEY_ID_TASK + " = " + Integer.toString(taskId),
+				null);
+
+		if (c.getCount() == 0)
+			return null;
+
+		ArrayList<Record> records = new ArrayList<Record>();
+		int checkinColumnId = c.getColumnIndex(KEY_CHECKIN);
+		int checkoutColumnId = c.getColumnIndex(KEY_CHECKOUT);
+
+		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext())
+			records.add(new Record(taskId, c.getLong(checkinColumnId), c.getLong(checkoutColumnId)));
+
+		return records;
 	}
 
 	public void clearAllData() {
