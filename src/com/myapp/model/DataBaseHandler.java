@@ -244,6 +244,23 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		return records;
 	}
 
+	public String getTaskName(int id) throws SQLException {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		Cursor c = db.rawQuery("SELECT " + KEY_NAME +
+				" FROM " + TABLE_TASK +
+				" WHERE " + KEY_ID + " = " + Integer.toString(id), null);
+
+		if (c.getCount() == 0)
+			return null;
+
+		c.moveToFirst();
+		String name = c.getString(c.getColumnIndex(KEY_NAME));
+
+		db.close();
+		return name;
+	}
+
 	public void clearAllData() {
 		onUpgrade(this.getWritableDatabase(), 0, 1);
 
