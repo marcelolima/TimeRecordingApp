@@ -177,6 +177,51 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		db.close();
 	}
 
+	public void addCheckOut(Wifi wifi) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		// Get id from tasks which ssid and bssid matches
+		Cursor c = db.rawQuery("SELECT " + KEY_ID +
+				" FROM " + TABLE_TASK +
+				" WHERE " + KEY_SSID + " = \"" + wifi.getSsid() +
+				"\" AND " + KEY_BSSID + " = \"" + wifi.getBssid() + "\"" , null);
+
+		if (c.getCount() == 0)
+			return;
+
+		// Get current time from Android
+		Long checkOut = System.currentTimeMillis();
+
+		ArrayList<Integer> tasksId = new ArrayList<Integer>();
+		int idColumn = c.getColumnIndex(KEY_ID);
+		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext())
+			tasksId.add(c.getInt(idColumn));
+
+		// For each task, update the last record row with checkout = 0
+		for (int taskId : tasksId) {
+			c = db.rawQuery("SELECT " + KEY_ID + ", " + KEY_CHECKOUT +
+					" FROM " + TABLE_RECORD +
+					" WHERE " + KEY_ID_TASK + " = " +  Integer.toString(taskId) +
+					" ORDER BY " + KEY_CHECKIN + " DESC LIMIT 1"
+					, null);
+
+			// Continue to next loop iteration if the checkout value is already setted
+			// or the query returned nothing
+			c.moveToFirst();
+			if (c.getLong(c.getColumnIndex(KEY_CHECKOUT)) != 0 || c.getCount() == 0)
+				continue;
+
+			int recIdToUpdate = c.getInt(c.getColumnIndex(KEY_ID));
+			//	TODO: verify returns
+			db.execSQL("UPDATE " + TABLE_RECORD +
+					" SET " + KEY_CHECKOUT + " = \"" + checkOut +
+					"\" WHERE " + KEY_ID + " = " + Integer.toString(recIdToUpdate) + ";");
+
+			Log.d(TAG, "UPDATED " + Integer.toString(taskId) + " with checkout " + checkOut, null);
+		}
+		db.close();
+	}
+
 	public void clearAllData() {
 		onUpgrade(this.getWritableDatabase(), 0, 1);
 
