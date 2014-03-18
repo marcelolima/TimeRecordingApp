@@ -22,4 +22,12 @@
         android:layout_below="@id/button_new_task"
         android:text="Your Tasks"
         />
+
+	<Button
+        android:id="@+id/button_reset_database"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/button_show_tasks"
+        android:text="Clear all data"
+        />
 </RelativeLayout>

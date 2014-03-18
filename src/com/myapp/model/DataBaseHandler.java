@@ -123,4 +123,10 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		db.close();
 		return tasksList;
 	}
+
+	public void clearAllData() {
+		onUpgrade(this.getWritableDatabase(), 0, 1);
+
+		Log.d(TAG, "Database tables cleared");
+	}
 }
