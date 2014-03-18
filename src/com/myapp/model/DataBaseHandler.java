@@ -11,10 +11,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.myapp.util.Task;
+import com.myapp.util.Wifi;
 
 public class DataBaseHandler extends SQLiteOpenHelper {
 	private static DataBaseHandler instance = null;
 	private static final String TAG = DataBaseHandler.class.getSimpleName();
+	private static final long UNDEF = 0;
+	private static final Long DELAY_BETWEEN_CHECKS = (long) 60000;
 
 	// Database config
 	private static final int DATABASE_VERSION = 1;
@@ -122,6 +125,56 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
 		db.close();
 		return tasksList;
+	}
+
+	public void addCheckIn(Wifi wifi) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		// Get id from tasks which ssid and bssid matches
+		Cursor c = db.rawQuery("SELECT " + KEY_ID +
+				" FROM " + TABLE_TASK +
+				" WHERE " + KEY_SSID + " = \"" + wifi.getSsid() +
+				"\" AND " + KEY_BSSID + " = \"" + wifi.getBssid() + "\"" , null);
+
+		if (c.getCount() == 0)
+			return;
+
+		// Get current time from Android
+		Long checkIn = System.currentTimeMillis();
+
+		ArrayList<Integer> tasksId = new ArrayList<Integer>();
+		int idColumn = c.getColumnIndex(KEY_ID);
+		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext())
+			tasksId.add(c.getInt(idColumn));
+
+		// Insert a new row for each task ID
+		for (int taskId : tasksId) {
+			c = db.rawQuery("SELECT " + KEY_ID + ", " + KEY_CHECKOUT +
+					" FROM " + TABLE_RECORD +
+					" WHERE " + KEY_ID_TASK + " = " +  Integer.toString(taskId) +
+					" ORDER BY " + KEY_CHECKIN + " DESC LIMIT 1"
+					, null);
+
+			int checkOutColumn = c.getColumnIndex(KEY_CHECKOUT);
+			int idRecColumn = c.getColumnIndex(KEY_ID);
+
+			if (c.moveToFirst() && (checkIn - c.getLong(checkOutColumn) <= DELAY_BETWEEN_CHECKS)) {
+				db.execSQL("UPDATE " + TABLE_RECORD +
+						" SET " + KEY_CHECKOUT + " = " + Long.toString(UNDEF) +
+						" WHERE " + KEY_ID + " = " + Integer.toString(c.getInt(idRecColumn)) +
+						";");
+				Log.d(TAG, "Merged last checkout with current checkin on task " + Integer.toString(taskId));
+			} else {
+				ContentValues values = new ContentValues();
+				values.put(KEY_CHECKIN, checkIn);
+				values.put(KEY_CHECKOUT, Long.toString(UNDEF));
+				values.put(KEY_ID_TASK, taskId);
+				db.insert(TABLE_RECORD, null, values);
+
+				Log.d(TAG, "INSERTED NEW RECORD " + Integer.toString(taskId) + " " + checkIn, null);
+			}
+		}
+		db.close();
 	}
 
 	public void clearAllData() {
