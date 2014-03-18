@@ -3,7 +3,11 @@ package com.myapp.timerecordingapp;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,6 +31,17 @@ public class ShowTasksActivity extends Activity {
 		arrAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, taskNamesList);
 
 		tasksListView.setAdapter(arrAdapter);
+		tasksListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				int taskId = tasksList.get(position).getId();
+				Intent intent = new Intent("com.myapp.timerecordingapp.TASKDETAILS");
+				intent.putExtra("TaskId", taskId);
+
+				startActivity(intent);
+			}
+		});
 	}
 
 	@Override
