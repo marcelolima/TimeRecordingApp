@@ -49,6 +49,11 @@ public class TaskDetailsActivity extends Activity {
 				finish();
 			}
 		});
+
+		Button buttonSendEmail = (Button) findViewById(R.id.button_send_email);
+		SendMailOnClickListener sendMailListener = new SendMailOnClickListener(taskId,
+				recordsFormatListView, getApplicationContext());
+		buttonSendEmail.setOnClickListener(sendMailListener);
 	}
 
 	@Override
