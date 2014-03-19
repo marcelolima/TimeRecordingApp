@@ -108,6 +108,17 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		return id;
 	}
 
+	public void removeTask(int idTask) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		// Delete the record rows from this task
+		int i = db.delete(TABLE_RECORD, KEY_ID_TASK + " = ?", new String[] {Integer.toString(idTask)});
+		db.delete(TABLE_TASK, KEY_ID + " = ?", new String[] {Integer.toString(idTask)});
+
+		Log.d(TAG, "DELETED " + Integer.toString(i) + " REC ROWS AND TASK " + Integer.toString(idTask));
+		db.close();
+	}
+
 	public ArrayList<Task> getAllTasks() {
 		SQLiteDatabase db = this.getReadableDatabase();
 
