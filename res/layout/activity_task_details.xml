@@ -10,11 +10,19 @@
 	    android:text="Remove Task"
 	    />
 
+	<Button
+		android:id="@+id/button_send_email"
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:text="Send Email"
+		android:layout_below="@id/button_remove_task"
+		/>
+
 	<TextView
 	    android:id="@+id/show_rec_title"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
-		android:layout_below="@id/button_remove_task"
+		android:layout_below="@id/button_send_email"
         />
 
     <ListView
