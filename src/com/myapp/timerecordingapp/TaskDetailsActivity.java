@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -35,6 +37,18 @@ public class TaskDetailsActivity extends Activity {
 
 		Bundle extras = getIntent().getExtras();
 		taskId = extras.getInt("TaskId");
+
+		Button buttonRemoveTasks = (Button) findViewById(R.id.button_remove_task);
+		buttonRemoveTasks.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				DataBaseHandler db = DataBaseHandler.getInstance(getApplicationContext());
+				db.removeTask(taskId);
+				db.close();
+				finish();
+			}
+		});
 	}
 
 	@Override
