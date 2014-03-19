@@ -68,6 +68,12 @@
             </intent-filter>
         </activity>
 
+	<receiver android:name="com.myapp.broadcastreceiver.WifiReceiver" android:enabled="true" android:label="WifiReceiver" >
+	    <intent-filter>
+				<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+		</intent-filter>
+	</receiver>
+
     </application>
 
 </manifest>
