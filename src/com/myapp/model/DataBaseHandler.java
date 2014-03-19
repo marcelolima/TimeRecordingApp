@@ -234,6 +234,38 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		db.close();
 	}
 
+	public void addCheckIn(int idTask) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		Cursor c = db.rawQuery("SELECT " + KEY_ID + ", " + KEY_CHECKOUT +
+				" FROM " + TABLE_RECORD +
+				" WHERE " + KEY_ID_TASK + " = " +  Integer.toString(idTask) +
+				" ORDER BY " + KEY_CHECKIN + " DESC LIMIT 1"
+				, null);
+
+		int idColumn = c.getColumnIndex(KEY_ID);
+		int checkOutColumn = c.getColumnIndex(KEY_CHECKOUT);
+		Long checkIn = System.currentTimeMillis();
+
+		if (c.moveToFirst() && checkIn - c.getLong(checkOutColumn) <= DELAY_BETWEEN_CHECKS) {
+			db.execSQL("UPDATE " + TABLE_RECORD +
+					" SET " + KEY_CHECKOUT + " = " + Long.toString(UNDEF) +
+					" WHERE " + KEY_ID + " = " + Integer.toString(c.getInt(idColumn)) +
+					";");
+		} else {
+			ContentValues values = new ContentValues();
+			values.put(KEY_ID_TASK, Integer.toString(idTask));
+			values.put(KEY_CHECKIN, Long.toString(checkIn));
+			values.put(KEY_CHECKOUT, Long.toString(UNDEF));
+
+			db.insert(TABLE_RECORD, null, values);
+
+			Log.d(TAG, "INSERTED NEW RECORD " + Integer.toString(idTask) + " " + Long.toString(checkIn));
+		}
+
+		db.close();
+	}
+
 	public ArrayList<Record> getRecords(int taskId) throws SQLException {
 
 		SQLiteDatabase db = this.getReadableDatabase();
