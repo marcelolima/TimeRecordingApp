@@ -3,10 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+	<Button
+	    android:id="@+id/button_remove_task"
+	    android:layout_height="wrap_content"
+	    android:layout_width="fill_parent"
+	    android:text="Remove Task"
+	    />
+
 	<TextView
 	    android:id="@+id/show_rec_title"
         android:layout_height="wrap_content"
-        android:layout_width="fill_parent" />
+        android:layout_width="fill_parent"
+		android:layout_below="@id/button_remove_task"
+        />
 
     <ListView
 		android:id="@+id/show_records"
