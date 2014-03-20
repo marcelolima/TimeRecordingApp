@@ -266,6 +266,32 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		db.close();
 	}
 
+	public void addCheckOut(int taskId) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		// Get current time from Android
+		Long checkOut = System.currentTimeMillis();
+
+		Cursor c = db.rawQuery("SELECT " + KEY_ID + ", " + KEY_CHECKOUT +
+				" FROM " + TABLE_RECORD +
+				" WHERE " + KEY_ID_TASK + " = " +  Integer.toString(taskId) +
+				" ORDER BY " + KEY_CHECKIN + " DESC LIMIT 1"
+				, null);
+
+		c.moveToFirst();
+		if (c.getLong(c.getColumnIndex(KEY_CHECKOUT)) != 0 || c.getCount() == 0)
+			return;
+
+		int recIdToUpdate = c.getInt(c.getColumnIndex(KEY_ID));
+		//	TODO: verify returns
+		db.execSQL("UPDATE " + TABLE_RECORD +
+				" SET " + KEY_CHECKOUT + " = \"" + checkOut +
+				"\" WHERE " + KEY_ID + " = " + Integer.toString(recIdToUpdate) + ";");
+
+		Log.d(TAG, "UPDATED " + Integer.toString(taskId) + " with checkout " + checkOut, null);
+		db.close();
+	}
+
 	public ArrayList<Record> getRecords(int taskId) throws SQLException {
 
 		SQLiteDatabase db = this.getReadableDatabase();
