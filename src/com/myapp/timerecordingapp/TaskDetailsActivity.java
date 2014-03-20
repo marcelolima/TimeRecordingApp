@@ -3,6 +3,8 @@ package com.myapp.timerecordingapp;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -43,10 +45,7 @@ public class TaskDetailsActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				DataBaseHandler db = DataBaseHandler.getInstance(getApplicationContext());
-				db.removeTask(taskId);
-				db.close();
-				finish();
+				alertMessage();
 			}
 		});
 
@@ -76,5 +75,25 @@ public class TaskDetailsActivity extends Activity {
 		}
 
 		db.close();
+	}
+
+	public void alertMessage() {
+		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (which ==  DialogInterface.BUTTON_POSITIVE) {
+					DataBaseHandler db = DataBaseHandler.getInstance(getApplicationContext());
+					db.removeTask(taskId);
+					db.close();
+					finish();
+				}
+			}
+		};
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Are you sure?")
+		.setPositiveButton("Yes", dialogClickListener)
+		.setNegativeButton("No", dialogClickListener)
+		.show();
 	}
 }
