@@ -330,6 +330,26 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		return name;
 	}
 
+	public Wifi getWifi(int idTask) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		Cursor c = db.rawQuery("SELECT " + KEY_SSID + ", " + KEY_BSSID +
+				" FROM " + TABLE_TASK +
+				" WHERE " + KEY_ID + " = " + Integer.toString(idTask),
+				null);
+
+		if (c.getCount() == 0)
+			return null;
+
+		c.moveToFirst();
+		String ssid = c.getString(c.getColumnIndex(KEY_SSID));
+		String bssid = c.getString(c.getColumnIndex(KEY_BSSID));
+
+		Wifi wifi = new Wifi(ssid, bssid);
+		db.close();
+		return wifi;
+	}
+
 	public void clearAllData() {
 		onUpgrade(this.getWritableDatabase(), 0, 1);
 
