@@ -108,6 +108,18 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 		return id;
 	}
 
+	public void changeWifi(int idTask, String ssid, String bssid) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_SSID, ssid);
+		values.put(KEY_BSSID, bssid);
+
+		db.update(TABLE_TASK, values, KEY_ID + " = ?", new String[] {Integer.toString(idTask)});
+
+		db.close();
+	}
+
 	public void removeTask(int idTask) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
