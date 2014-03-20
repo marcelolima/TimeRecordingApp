@@ -4,7 +4,13 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -39,6 +45,17 @@ public class TaskDetailsActivity extends Activity {
 
 		Bundle extras = getIntent().getExtras();
 		taskId = extras.getInt("TaskId");
+
+		Button buttonChangeWifi = (Button) findViewById(R.id.button_change_wifi);
+		buttonChangeWifi.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent("com.myapp.timerecordingapp.SELECTWIFI");
+				startActivityForResult(intent, Wifi.CHOOSE_WIFI);
+			}
+		});
+
 
 		Button buttonRemoveTasks = (Button) findViewById(R.id.button_remove_task);
 		buttonRemoveTasks.setOnClickListener(new View.OnClickListener() {
@@ -95,5 +112,36 @@ public class TaskDetailsActivity extends Activity {
 		.setPositiveButton("Yes", dialogClickListener)
 		.setNegativeButton("No", dialogClickListener)
 		.show();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data){
+		if (requestCode == Wifi.CHOOSE_WIFI && resultCode == RESULT_OK) {
+			DataBaseHandler db = DataBaseHandler.getInstance(getApplicationContext());
+
+			Wifi oldWifi = db.getWifi(taskId);
+			Wifi newWifi = new Wifi(data.getStringExtra(Wifi.KEY_SSID), data.getStringExtra(Wifi.KEY_BSSID));
+
+			if (!oldWifi.equals(newWifi)) {
+				// Do a checkout (if empty) in the old wifi
+				db.addCheckOut(taskId);
+
+				// Change the wifi to the new one selected
+				db.changeWifi(taskId, newWifi.getSsid(), newWifi.getBssid());
+
+				// Check if the current wifi is the new one, then do a checkin
+				ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+				if (mWifi.isConnected()) {
+					WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+					WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+					Wifi connectedWifi = new Wifi(wifiInfo.getSSID().replace("\"", ""), wifiInfo.getBSSID());
+					if (newWifi.equals(connectedWifi))
+						db.addCheckIn(taskId);
+				}
+			}
+			db.close();
+		}
 	}
 }
