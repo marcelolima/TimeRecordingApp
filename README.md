@@ -1,5 +1,4 @@
-TimeRecordingApp
+Wifi Time Recording App
 ================
-
-Simple android application to record check-in/check-out times based on wifi connection/disconnection.
+Android app to record checkin/checkout timestamps based on wifi connection/disconnection events.
 
